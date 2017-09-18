@@ -67,7 +67,7 @@ class boothArrange:
     def placeAllBooths(self):
         for i in range(self.numBooths):
             target = self.booths[i]
-            #print(target.boothID, '(w,h) ', target.width, target.height, '(r,c) ',target.row, target.column)
+            print(target.boothID, '(w,h) ', target.width, target.height, '(r,c) ',target.row, target.column)
             row = target.row
             column = target.column
             for y in range(target.height):
@@ -75,6 +75,17 @@ class boothArrange:
                     self.roomMatrix[row][column] = target.boothID
                     column+=1
                 row+=1
+    
+    def placeATempBooth(self,targetBoothID,des_row,des_column):
+        target = self.booths[targetBoothID-1]
+        #print(target.boothID, '(w,h) ', target.width, target.height, '(r,c) ',target.row, target.column)
+        row = target.row
+        column = target.column
+        for y in range(target.height):
+            for x in range(target.width):
+                self.roomMatrix[row][column] = target.boothID + 100
+                column+=1
+            row+=1
     
     def isSuccess(self):
         if self.roomMatrix[self.destinationRow][self.destinationColumn] != self.targetID:
@@ -86,6 +97,14 @@ class boothArrange:
             return False
         return True
     
+        """
+        for y in range(target.height):
+            for x in range(target.width):
+                if self.roomMatrix[row][column] != self.targetID:
+                    return False
+                column+=1
+            row+=1
+        """
         
     def printMatrix(self):
         print(np.matrix(self.roomMatrix),'\n')
@@ -98,6 +117,10 @@ class boothArrange:
             self.targetID = n
             self.destinationRow = r
             self.destinationColumn = c
+            #target = self.booths[n-1]
+            #self.startRow = target.row
+            #self.startColumn = target.column
+            #self.roomMatrix[r][c] = 99
     
     # Return the number of possible move steps
     def moveOtherBooth(self,bID):
@@ -224,8 +247,8 @@ class boothArrange:
         def recurseBFS(movedID, room, booths, depth, boothXY, movedOtherbooth):
             
             if self.isThisSuccess( [row[:] for row in room] ):
-                #print("FOUND SOLUTION 2 ", self.moved)
-                #print(np.matrix([row[:] for row in room]),'\n')
+                print("FOUND SOLUTION 2 ", self.moved)
+                print(np.matrix([row[:] for row in room]),'\n')
                 stack.queue.clear()
                 self.minMove = depth + movedOtherbooth
                 return depth + movedOtherbooth
@@ -244,8 +267,8 @@ class boothArrange:
                     isMoved = travel(currTarget, boothXY, [currTarget.height, currTarget.width], side, room)
                     
                     if isMoved == 1:
-                        #print(currTarget.boothID,' Moved. Side:',side)
-                        #print(np.matrix(room),'\n')
+                        print(currTarget.boothID,' Moved. Side:',side)
+                        print(np.matrix(room),'\n')
                   
                         # compare old stack has this matrix or not
                         isHas = False
@@ -324,10 +347,11 @@ if __name__=='__main__':
                 raise ValueError('Invaild Input Function name')
     
     boothArrange.placeAllBooths()
-    #boothArrange.printMatrix()         
+    boothArrange.printMatrix()         
     
     #print('start search the path')
     boothArrange.dfs()
+    #print("moves(" + str(boothArrange.getMinSteps())+").")
     print("moves(" + str(boothArrange.getMinSteps())+").")
                 
             
