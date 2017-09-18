@@ -30,6 +30,7 @@ class boothArrange:
         self.destinationColumn = 0
         self.minMove = 0
         self.moved = 0
+        self.upperbound = 0
         #self.f1 = open('log.txt', 'ab')
     
     def setRoom(self,w,h):
@@ -46,6 +47,9 @@ class boothArrange:
         for i in range(1,n+1):
             self.booths.append(Booth(i))
             self.boothLocation.append([0,0])
+    
+    def setUpperbound(self,n):
+        self.upperbound = n
             
     def setDimension(self,targetID,w,h):
         if targetID > self.numBooths or targetID < 1:
@@ -319,7 +323,9 @@ if __name__=='__main__':
                 getArg = funcName[1].split(')')
                 getArg = getArg[0].split(',')
                 boothArrange.setDestination(int(getArg[0]), int(getArg[1]), int(getArg[2]))
-            
+            elif funcName[0] == 'horizon':
+                getArg = funcName[1].split(')')
+                boothArrange.setUpperbound(int(getArg[0]))
             else:
                 raise ValueError('Invaild Input Function name')
     
