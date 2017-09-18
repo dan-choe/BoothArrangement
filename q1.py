@@ -69,16 +69,16 @@ class boothArrange:
     
     # set idNum on occupied space of the room matrix
     def placeAllBooths(self):
-        for i in range(self.numBooths):
+        for i in range(self.numBooths): #
             target = self.booths[i]
             #print(target.boothID, '(w,h) ', target.width, target.height, '(r,c) ',target.row, target.column)
             row = target.row
             column = target.column
-            for y in range(target.height):
-                for x in range(target.width):
-                    self.roomMatrix[row][column] = target.boothID
-                    column+=1
-                row+=1
+            
+            for r in range(target.height):
+                for c in range(target.width):
+                    self.roomMatrix[row + r][column + c] = target.boothID
+                   
     
     def isSuccess(self):
         if self.roomMatrix[self.destinationRow][self.destinationColumn] != self.targetID:

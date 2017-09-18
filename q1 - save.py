@@ -30,6 +30,7 @@ class boothArrange:
         self.destinationColumn = 0
         self.minMove = 0
         self.moved = 0
+        self.upperbound = 0
         #self.f1 = open('log.txt', 'ab')
     
     def setRoom(self,w,h):
@@ -39,6 +40,9 @@ class boothArrange:
         self.roomWidth = w
         self.roomMatrix = [[0 for i in range(self.roomHeight)] for j in range(self.roomWidth)]
     
+    def setUpperbound(self,n):
+        self.upperbound = n
+        
     def setNumBooths(self,n):
         if n < 1 or n > 20:
             raise ValueError('Invaild number of booths')
@@ -65,16 +69,19 @@ class boothArrange:
     
     # set idNum on occupied space of the room matrix
     def placeAllBooths(self):
-        for i in range(self.numBooths):
+        for i in range(self.numBooths): #
             target = self.booths[i]
             print(target.boothID, '(w,h) ', target.width, target.height, '(r,c) ',target.row, target.column)
             row = target.row
             column = target.column
-            for y in range(target.height):
-                for x in range(target.width):
-                    self.roomMatrix[row][column] = target.boothID
-                    column+=1
-                row+=1
+            
+            for r in range(target.height):
+                #print(target.boothID,'-> r',r)
+                for c in range(target.width):
+                    self.roomMatrix[row + r][column + c] = target.boothID
+                    #column+=1
+                    #print(target.boothID,'-> c',c)
+                #row+=1
     
     def placeATempBooth(self,targetBoothID,des_row,des_column):
         target = self.booths[targetBoothID-1]
@@ -342,12 +349,14 @@ if __name__=='__main__':
                 getArg = funcName[1].split(')')
                 getArg = getArg[0].split(',')
                 boothArrange.setDestination(int(getArg[0]), int(getArg[1]), int(getArg[2]))
-            
+            elif funcName[0] == 'horizon':
+                getArg = funcName[1].split(')')
+                boothArrange.setUpperbound(int(getArg[0]))
             else:
                 raise ValueError('Invaild Input Function name')
     
     boothArrange.placeAllBooths()
-    boothArrange.printMatrix()         
+    #boothArrange.printMatrix()         
     
     #print('start search the path')
     boothArrange.dfs()
