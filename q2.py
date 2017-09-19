@@ -13,6 +13,7 @@ class buffet:
         self._dishType = 0
         self._dishTotal = 0
         self._minTable = 0
+        self.tables = []
         
     def dishes(self, n):
         self._dishType = n
@@ -40,16 +41,41 @@ class buffet:
         return self._minTable
     
     def calculate(self):
-        spaceOccupied = self._hot # but think! dish width
+        
+        # find longest dish of hot
+        hotLengthOrderID = []
+        for hot in range(1, self._hot+1):
+            hotLengthOrderID.append(self._dishWidth[hot])
+        
+        hotLengthOrderID.sort()
+        print('hotLengthOrderID order', hotLengthOrderID)
+        
+        
+        placedDishCnt = 0
+        
+        for hot in range(1, self._hot+1):
+            hotLengthOrderID.pop()      # Pop longest order
+            for dish in range():
+                if placedDishCnt <= self.table_width:
+                    for dishLength in range():
+                        self.tables.append(dishLength)
+                        
+                    print('self.tables', self.tables)
+        
+        
+            #if longest < self._dishWidth[hot]:
+            #    longest = self._dishWidth[hot]
+            
+            
+        
+        #spaceOccupied = self._hot # but think! dish width
         
         if self._hot > 0:
-            spaceOccupied += int(self._distance)
+            #spaceOccupied += int(self._distance)
             self._hot = 0
         else:
             self._hot = 0
-        
-        
-        
+
         return 1
     
 
@@ -95,7 +121,8 @@ if __name__=='__main__':
             else:
                 raise ValueError('Invaild Input Function name')
     
-    mybuffet.setTotalNumDishes()          
+    mybuffet.setTotalNumDishes()
+    mybuffet.calculate()
     print("tables(" + str(mybuffet.getMinTables())+").")
                
             
