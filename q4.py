@@ -11,49 +11,102 @@ class Tourism:
         self.numPeople = 0
         self.numPlace = 0
         self.numPrefer = 0
-        self.ranking = []
         
-        self.requestedOrder = []
+        self.posibbleRankings = [] # rank list
+        self.requestPair = [] # hold all requested pair [[id, a, b], [], ..]
+        self.personOrdercnt = {}
+        
+        self.violation = 0
         
     def setNumPeople(self, n):
         self.numPeople = n
-    
+        for i in range(1,n+1):
+            self.personOrdercnt[i] = 0
+            
     def setNumPlace(self, n):
         self.numPlace = n
-        for i in range(1, n+1):
-            self.ranking.append(i) # temp values
-    
+        
     def setNumPreferences(self, n):
         self.numPrefer = n
     
     def setOrder(self, personID, a, b):
-        self.requestedOrder.append([personID, a, b])
+        self.personOrdercnt[personID] += 1
+        self.requestPair.append([personID,a,b])
+    
+    # ex: a-b, b-c => add: a-c
+    def addnewFair(self):
+        for personID in range(1, self.numPeople+1):
+            if self.personOrdercnt[personID] > 1:
+                cnt = self.personOrdercnt[personID]
+                for idx in range(len(self.requestPair)):
+                    if self.requestPair[idx][0] == personID:
+                        for i in range(idx,idx+cnt): # 2-> add 1,  3 -> add 2, 4 -> 3, 5 ->
+                            for j in range(i, idx+cnt-1):
+                                a = self.requestPair[i][1]
+                                b = self.requestPair[j+1][2]
+                                self.requestPair.append([personID,a,b])
+                        break
+    
+    def checkVioration(self, arr, start, end):
+        isStart = False
+        isEnd = False
         
-    def permutation(self, arr):
-     
-        if len(arr) == 0:
+        for i in range(len(arr)):
+            if arr[i] == start and not isEnd:
+                isStart = True
+            elif arr[i] == end and not isStart: # opposite order
+                isEnd = True
+                return 1
+            elif isStart and arr[i] == end: # found right fair
+                return 0
+        return 1 # since last element can be start. it is error case
+    
+    
+    def checkViolation(self):
+        
+        self.addnewFair()
+
+        numPairs = len(self.requestPair)
+        
+        allpermu = self.permutation([x+1 for x in range(self.numPlace)])
+        """
+        for i in allpermu:
+            print(i)
+        """    
+        numPermutation = len(allpermu)
+        
+        minViolation = 999 # temp
+        
+        for permuID in range(numPermutation):
+            
+            errorCase = 0
+            
+            for pairID in range(numPairs):
+                
+                result = self.checkVioration(allpermu[permuID], self.requestPair[pairID][1], self.requestPair[pairID][2])
+                errorCase += result
+                
+            if errorCase < minViolation:
+                minViolation = errorCase
+                #print(allpermu[permuID], 'violation:',errorCase)
+        
+        return minViolation
+            
+        
+    def permutation(self,arr):
+        if not len(arr):
             return []
-     
         if len(arr) == 1:
             return [arr]
      
-        # Find the permutations for lst if there are more than 1 characters
-        l = [] # empty list that will store current permutation
-     
-        # Iterate the input(lst) and calculate the permutation
+        permuList = []
         for i in range(len(arr)):
            m = arr[i]
-     
-           # Extract lst[i] or m from the list.  remLst is remaining list
            remLst = arr[:i] + arr[i+1:]
-     
-           # Generating all permutations where m is first element
            for p in self.permutation(remLst):
-               l.append([m] + p)
-        return l
-
-
-
+               permuList.append([m] + p)
+        return permuList
+    
 def getFuncName(inputStr):
     #inputStr = inputStr.strip() # Remove leading & ending whitespace
     inputStr = inputStr.replace(" ", "")
@@ -77,7 +130,7 @@ if __name__=='__main__':
                 getArg = funcName[1].split(')')
                 tourism.setNumPeople(int(getArg[0]))  
             elif funcName[0] == 'preferences':
-                getArg = funcName[1].split(-')')
+                getArg = funcName[1].split(')')
                 tourism.setNumPreferences(int(getArg[0]))
             elif funcName[0] == 'places':
                 getArg = funcName[1].split(')')
@@ -89,59 +142,9 @@ if __name__=='__main__':
             else:
                 raise ValueError('Invaild Input Function name')
     
-    allpermu = tourism.permutation(tourism.ranking)
-    
-    # Q3 (4)
-    #   1-2  2-3  - 1-3  [1,2,3]
-    #   2-1  1-3  - 2-3  [1,2,3]   2-1 wrong
-    
-    #   if new element is not in the array, make possible arrays
-    #  [case 1] - correct
-    #   3-4  4-1  - 3-1  [4,1,2,3] 3-4 wrong, 3-1 wrong
-    #   4-3  3-2  - 4-2  [4,1,2,3] 3-2 wrong
-    
-    #  [case 2]
-    #   3-4  4-1  - 3-1  [1,2,3,4] 4-1 wrong, 3-1 wrong
-    #   4-3  3-2  - 4-2  [1,2,3,4] 4-3 wrong, 3-2 wrong, 4-2 wrong
-    
-    
-    # Q4 correct (6)
-    # 1-2 2-4 4-3         [1, 2, 4, 3]
-    # 2-1 1-3     - 2-3   [1, 2, 4, 3] 2-1 wrong
-    # 3-4 4-1     - 3-1   [1, 2, 4, 3] 3-4 wrong, 4-1 wrong, 3-1 wrong
-    # 4-3 3-2     - 4-2   [1, 2, 4, 3] 3-2 wrong, 4-2 wrong
-    
-    # Q5 correct (9)
-    # 1-2 2-3 3-4                  [1,2,3,4]
-    # 2-3 3-4 4-1  - 2-1  2-4      [1,2,3,4]  4-1 wrong, 2-1 wrong
-    # 3-4 4-1 1-2  - 3-2  3-1      [1,2,3,4]  4-1 wrong, 3-2 wrong, 3-1 wrong 
-    # 4-3 3-2 2-1  - 4-2  3-1      [1,2,3,4]  4-3 wrong, 3-2 wrong, 2-1 wrong, 4-2 wrong, 3-1 wrong
-    
-    # Q6 correct (5)
-    # 1-2 2-3 +1-3  [1,2,3] 
-    # new element [4,1,2,3]   [1,4,2,3]   [1,2,4,3]
-    #
-    # [4,1,2,3]  -- correct
-    # 4-3, 3-2, +4-2      [4,1,2,3] 3-2 wrong
-    # 2-4, 4-1, +2-1      [4,1,2,3] 2-4 wrong, 2-1 wrong
-    # 1-3, 3-4, +1-4      [4,1,2,3] 3-4 wrong, 1-4 wrong
-    #
-    # [1,4,2,3]  -- correct
-    # 4-3, 3-2, +4-2      [1,4,2,3] 3-2 wrong
-    # 2-4, 4-1, +2-1      [1,4,2,3] 2-4 wrong, 2-1 wrong, 4-1 wrong
-    # 1-3, 3-4, +1-4      [1,4,2,3] 3-4 wrong
-    #
-    # [1,2,4,3]  -- correct
-    # 4-3, 3-2, +4-2      [1,2,4,3] 3-2 wrong, 4-2 wrong
-    # 2-4, 4-1, +2-1      [1,2,4,3] 2-1 wrong, 4-1 wrong
-    # 1-3, 3-4, +1-4      [1,2,4,3] 3-4 wrong
-    
-    
-    
-    for i in allpermu:
-        print(i)
-    
     #print("tables(" + str(tourism.getMinTables())+").")
-               
-            
+    #print('\npersonOrdercnt : ', tourism.personOrdercnt, '\n')
+    result = tourism.checkViolation()
+    
+    print("violation(" + str(result)+").")
                 
